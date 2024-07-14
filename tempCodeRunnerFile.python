@@ -1,0 +1,67 @@
+from collections import deque
+
+def pour_water(capacities, initial_contents, final_contents):
+    capacities = tuple(capacities)
+    visited = set()
+    q = deque([(tuple(initial_contents), 0, 0)])
+    visited.add((initial_contents[0], initial_contents[1], initial_contents[2]))
+
+    while q:
+        state = q.popleft()
+        if state[0] == final_contents[0] and state[1] == final_contents[1] and state[2] == final_contents[2]:
+            return state
+
+        x, y, z = state[0]
+        nxt_states = []
+
+        # Pour from x to y
+        if x > 0 and y < capacities[1]:
+            pour = min(x, capacities[1] - y)
+            nxt_states.append(((x - pour, y + pour, z), state[1] + 1, 1))
+
+        # Pour from x to z
+        if x > 0 and z < capacities[2]:
+            pour = min(x, capacities[2] - z)
+            nxt_states.append(((x - pour, y, z + pour), state[1] + 1, 2))
+
+        # Pour from y to x
+        if y > 0 and x < capacities[0]:
+            pour = min(y, capacities[0] - x)
+            nxt_states.append(((x + pour, y - pour, z), state[1] + 1, 3))
+
+        # Pour from y to z
+        if y > 0 and z < capacities[2]:
+            pour = min(y, capacities[2] - z)
+            nxt_states.append(((x, y - pour, z + pour), state[1] + 1, 4))
+
+        # Pour from z to x
+        if z > 0 and x < capacities[0]:
+            pour = min(z, capacities[0] - x)
+            nxt_states.append(((x + pour, y, z - pour), state[1] + 1, 5))
+
+        # Pour from z to y
+        if z > 0 and y < capacities[1]:
+            pour = min(z, capacities[1] - y)
+            nxt_states.append(((x, y + pour, z - pour), state[1] + 1, 6))
+
+        for nxt, moves, action in nxt_states:
+            if nxt not in visited:
+                q.append((nxt, moves, action))
+                visited.add(nxt)
+
+    return None
+
+def main():
+    # Take input from the user
+    capacities = list(map(int, input("Enter the capacities of the glasses (separated by spaces): ").split()))
+    initial_contents = list(map(int, input("Enter the initial contents of the glasses (separated by spaces): ").split()))
+    final_contents = list(map(int, input("Enter the final contents of the glasses (separated by spaces): ").split()))
+
+    result = pour_water(capacities, initial_contents, final_contents)
+    if result:
+        print("Shortest sequence of moves:", result[1])
+    else:
+        print("No solution found.")
+
+if __name__ == "__main__":
+    main()
